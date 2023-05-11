@@ -1,5 +1,5 @@
 
-#JSMDUtils.jl
+# JSMDUtils.jl
 
 _A utilities package for the JSMD ecosystem_
 
