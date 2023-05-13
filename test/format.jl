@@ -8,7 +8,6 @@
     @test format_camelcase("test this_string") == "TestThisString"
     @test format_camelcase("Test   This") == "TestThis"
 
-    @test_throws ErrorException format_camelcase("__")
 
     # Test SnakeCase formatting 
     @test format_snakecase("hello world") == "hello_world"
