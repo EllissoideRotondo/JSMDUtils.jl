@@ -1,6 +1,10 @@
 
 export format_camelcase, format_snakecase
 
+function format_camelcase(str::S) where {S <: AbstractString}
+    format_camelcase(S, str)
+end
+
 function format_camelcase(::Type{T}, s::S) where {T,S<:AbstractString}
     words = split(s, r"[\_, \s, \-]")
     if length(words) > 1
@@ -10,6 +14,10 @@ function format_camelcase(::Type{T}, s::S) where {T,S<:AbstractString}
     else
         throw(error("$s cannot be formatted in CamelCase."))
     end
+end
+
+function format_snakecase(str::S) where {S <: AbstractString}
+    format_snakecase(S, str)
 end
 
 function format_snakecase(::Type{T}, s::S) where {T,S<:AbstractString}

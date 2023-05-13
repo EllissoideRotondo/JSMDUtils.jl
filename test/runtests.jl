@@ -10,4 +10,8 @@ using Test
             end
         end
     end
-end
+
+    include("ephemeris.jl")
+    include("format.jl")
+
+end;

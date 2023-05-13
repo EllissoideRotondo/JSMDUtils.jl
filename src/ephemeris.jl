@@ -10,4 +10,5 @@ ephemeris files.
 """
 struct NullEphemerisProvider <: AbstractEphemerisProvider end
 
-ephem_timescale(::NullEphemerisProvider) = TDB
+# Sets default timescale for NullEphemerisProvider to TDB
+ephem_timescale(::NullEphemerisProvider) = 1
