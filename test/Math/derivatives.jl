@@ -6,4 +6,9 @@
     @test D¹(f, τ) ≈ cos(τ) + 9τ^2 atol = 1e-14
     @test D²(f, τ) ≈ -sin(τ) + 18τ atol = 1e-14
     @test D³(f, τ) ≈ -cos(τ) + 18 atol = 1e-14
+
+    fcn(x) = (x, x^2)
+
+    @test D¹(fcn, 2) == (1, 4)
+
 end;
