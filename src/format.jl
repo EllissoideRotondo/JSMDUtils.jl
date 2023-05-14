@@ -7,8 +7,8 @@ export format_camelcase, format_snakecase
 Format `str` in CamelCase, such that the first letter of each word 
 in the sentence is capitalized and spaces are removed.
 """
-function format_camelcase(str::S) where {S <: AbstractString}
-    format_camelcase(S, str)
+function format_camelcase(str::S) where {S<:AbstractString}
+    return format_camelcase(S, str)
 end
 
 function format_camelcase(::Type{T}, s::S) where {T,S<:AbstractString}
@@ -22,15 +22,14 @@ function format_camelcase(::Type{T}, s::S) where {T,S<:AbstractString}
     end
 end
 
-
 """
     format_snakecase(str::AbstractString)
 
 Format `str` in SnakeCase, such that all the letters are in lower case and 
 spaces are replaced with underscores.
 """
-function format_snakecase(str::S) where {S <: AbstractString}
-    format_snakecase(S, str)
+function format_snakecase(str::S) where {S<:AbstractString}
+    return format_snakecase(S, str)
 end
 
 function format_snakecase(::Type{T}, s::S) where {T,S<:AbstractString}

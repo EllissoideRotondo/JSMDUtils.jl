@@ -1,7 +1,10 @@
-module Math 
+module Math
 
-using ForwardDiff
-using ForwardDiff: derivative
+using LinearAlgebra
+using ForwardDiff: derivative, ForwardDiff
+using StaticArrays
+
+import JSMDInterfaces.Math as jMath
 
 include("angles.jl")
 include("derivatives.jl")

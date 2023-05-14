@@ -1,6 +1,6 @@
 export InterpAkima
 
-struct InterpAkima{T} <: AbstractInterpolationMethod
+struct InterpAkima{T} <: jMath.AbstractInterpolationMethod
     n::Int
     x::Vector{T}
     y::Vector{T}
@@ -39,7 +39,7 @@ function InterpAkima(x::AbstractVector{T}, y) where {T}
     return InterpAkima(n, x, y, b, c, d)
 end
 
-@inline function interpolate(a::InterpAkima{T}, x) where {T}
+@inline function jMath.interpolate(a::InterpAkima{T}, x) where {T}
     idx = searchsortedlast(a.x, x)
     idx == 0 && return a.y[1]
     idx == a.n && return a.y[end]

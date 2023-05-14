@@ -10,5 +10,4 @@
     fcn(x) = (x, x^2)
 
     @test D¹(fcn, 2) == (1, 4)
-
 end;

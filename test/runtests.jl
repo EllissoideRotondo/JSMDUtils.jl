@@ -1,5 +1,7 @@
 using JSMDUtils
-using Test 
+using Test
+
+import JSMDInterfaces.Ephemeris as jEphem
 
 @testset "JSMDUtils" verbose = true begin
     @eval begin
@@ -13,5 +15,4 @@ using Test
 
     include("ephemeris.jl")
     include("format.jl")
-
 end;

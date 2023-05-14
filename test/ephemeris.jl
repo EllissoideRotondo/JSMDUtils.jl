@@ -1,9 +1,7 @@
 
-@testset "Ephemeris" verbose=true begin 
-
+@testset "Ephemeris" verbose = true begin
     np = JSMDUtils.NullEphemerisProvider()
 
     # TODO: with JSMDInterfaces change to that caller
-    @test JSMDUtils.ephem_timescale(np) == 1
-
+    @test jEphem.ephem_timescale(np) == 1
 end

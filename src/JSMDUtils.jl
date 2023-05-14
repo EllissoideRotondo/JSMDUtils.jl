@@ -1,8 +1,8 @@
 module JSMDUtils
 
-# TODO: include when JSMDInterfaces becomes available
-# include("IO.jl")
+import JSMDInterfaces.Ephemeris as jEphem
 
+include("IO.jl")
 include("format.jl")
 include("ephemeris.jl")
 
