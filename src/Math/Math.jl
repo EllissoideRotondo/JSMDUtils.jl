@@ -3,6 +3,7 @@ module Math
 using LinearAlgebra
 using ForwardDiff: derivative, ForwardDiff
 using StaticArrays
+using SparseArrays
 
 import JSMDInterfaces.Math as jMath
 

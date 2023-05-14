@@ -151,7 +151,7 @@ end
 
 # Apply periodic boundary conditions, such that the first and second derivatives
 # at the first and last point are equal.
-function get_cspline_coefficients(::Val{:Periodic}, A, q, δf, args...)
+function get_cspline_coefficients(::Val{:Periodic}, A, q, δf, δx, args...)
     As = sparse(A)
     As[1, 1] = 1
     As[1, end] = -1
