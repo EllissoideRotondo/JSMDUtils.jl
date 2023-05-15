@@ -12,8 +12,6 @@ end
     InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol)
 """
 function InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:Natural)
-    # Retrieve common type 
-    T = Base.promote_eltype(x, y)
 
     # Check input validity 
     n = length(x)
@@ -35,27 +33,34 @@ function InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:N
     # Sort the arrays to guarantee that x is in ascending order
     idx = sortperm(x)
 
-    xs = T.(collect(x[idx]))
-    ys = T.(reshape(collect(N == 1 ? y[idx] : y[:, idx]), N, n))
+    xs = collect(x[idx])
+    ys = reshape(collect(N == 1 ? y[idx] : y[:, idx]), N, n)
 
     # Compute the spline coefficients
-    c = Vector{T}()
-    for j in 1:N
-        @views append!(c, _assemble_cspline(n, xs, ys[j, :], Val(type)))
-    end
+    @views coeffs = vcat((_assemble_cspline(n, xs, ys[j, :], Val(type))[:] for j in 1:N)...)
+    T = eltype(coeffs)
 
-    return InterpCubicSplines{T,N}(n, xs, ys, T.(reshape(c, (4, n - 1, N))), type)
+    return InterpCubicSplines{T,N}(n, xs, ys, reshape(coeffs, (4, n - 1, N)), type)
 end
 
 """ 
     interpolate(::InterpCubicSplines, x::Number)
 """
-function jMath.interpolate(cs::InterpCubicSplines{T,1}, x::Number) where {T}
-    @inbounds begin
-        j = searchsortedfirst(cs.xn, x)
+function jMath.interpolate(
+    cs::InterpCubicSplines{T,1}, x::Number, flat::Bool=true
+) where {T}
 
-        j == 1 && return cs.yn[1, 1]
-        j == cs.n + 1 && return cs.yn[1, end]
+    # Flat extrapolation settings
+    if flat
+        if x < cs.xn[1]
+            return cs.yn[1, 1]
+        elseif x > cs.xn[end]
+            return cs.yn[1, end]
+        end
+    end
+
+    @inbounds begin
+        j = max(2, min(searchsortedfirst(cs.xn, x), cs.n))
 
         # Horner polynomial evaluation
         δx = x - cs.xn[j - 1]
@@ -64,12 +69,21 @@ function jMath.interpolate(cs::InterpCubicSplines{T,1}, x::Number) where {T}
     end
 end
 
-function jMath.interpolate(cs::InterpCubicSplines{T,N}, x::Number) where {T,N}
-    @inbounds begin
-        j = searchsortedfirst(cs.xn, x)
+function jMath.interpolate(
+    cs::InterpCubicSplines{T,N}, x::Number, flat::Bool=true
+) where {T,N}
 
-        j == 1 && return SVector{N}(yi for yi in @view cs.yn[1:end, 1])
-        j == cs.n + 1 && return SVector{N}(yi for yi in @view cs.yn[1:end, end])
+    # Flat extrapolation settings
+    if flat
+        if x < cs.xn[1]
+            return SVector{N}(yi for yi in @view cs.yn[1:end, 1])
+        elseif x > cs.xn[end]
+            return SVector{N}(yi for yi in @view cs.yn[1:end, end])
+        end
+    end
+
+    @inbounds begin
+        j = max(2, min(searchsortedfirst(cs.xn, x), cs.n))
 
         # Horner polynomial evaluation
         δx = x - cs.xn[j - 1]
@@ -82,31 +96,27 @@ function jMath.interpolate(cs::InterpCubicSplines{T,N}, x::Number) where {T,N}
 end
 
 function _assemble_cspline(n::Int, x::AbstractVector, y::AbstractVector, type)
-
-    # Retrieve common type
-    T = Base.promote_eltype(x, y)
-
-    # Coefficient vector
-    q = zeros(T, n)
-
-    # Arrays storing diagonals, subdiagonal and superdiagonal
-    dd = zeros(T, n)
-    dl = zeros(T, n - 1)
-    du = zeros(T, n - 1)
-
-    # Polynomials coefficients array
-    coeffs = zeros(T, 4, n - 1)
-
     @inbounds @views begin
         δx = diff(x)
         δf = diff(y) ./ δx
+
+        # Coefficient vector
+        q = similar(δf, n)
+
+        # Arrays storing diagonals, subdiagonal and superdiagonal
+        dd = similar(δf, n)
+        dl = similar(δf, n - 1)
+        du = similar(δf, n - 1)
 
         # Compute the diagonal
         dd[2:(end - 1)] .= 2 * (δx[2:end] + δx[1:(end - 1)])
 
         # Compute the super and subdiagonals
+        du[1] = 0
         du[2:end] .= δx[2:end]
+
         dl[1:(end - 1)] .= δx[1:(end - 1)]
+        dl[end] = 0
 
         # Assemble bi coefficients vector
         q[2:(end - 1)] .= 3 * (δf[2:end] .- δf[1:(end - 1)])
@@ -116,10 +126,14 @@ function _assemble_cspline(n::Int, x::AbstractVector, y::AbstractVector, type)
         # Solve the system for the bi coefficients
         b = get_cspline_coefficients(type, A, q, δf, δx)
 
-        coeffs[1, :] .= y[1:(end - 1)]
-        coeffs[2, :] .= δf .- δx .* (b[2:end] + 2 * b[1:(end - 1)]) / 3
-        coeffs[3, :] .= b[1:(end - 1)]
-        coeffs[4, :] .= (b[2:end] - b[1:(end - 1)]) ./ (3 * δx)
+        # Polynomials coefficients matrix
+        coeffs =
+            hcat(
+                y[1:(end - 1)],
+                δf .- δx .* (b[2:end] + 2 * b[1:(end - 1)]) / 3,
+                b[1:(end - 1)],
+                (b[2:end] - b[1:(end - 1)]) ./ (3 * δx),
+            )'
     end
 
     return coeffs
@@ -130,6 +144,9 @@ end
 function get_cspline_coefficients(::Val{:Natural}, A, q, args...)
     A[1, 1] = 1
     A[end, end] = 1
+
+    q[1] = 0.0
+    q[end] = 0.0
 
     return A \ q
 end
@@ -146,6 +163,9 @@ function get_cspline_coefficients(::Val{:NotAKnot}, A, q, δf, δx)
     As[end, end - 1] = δx[end] + δx[end - 1]
     As[end, end - 2] = -δx[end]
 
+    q[1] = 0.0
+    q[end] = 0.0
+
     return As \ q
 end
 
@@ -161,6 +181,7 @@ function get_cspline_coefficients(::Val{:Periodic}, A, q, δf, δx, args...)
     As[end, 1] = 2δx[1]
     As[end, 2] = δx[1]
 
+    q[1] = 0.0
     q[end] = 3 * (δf[1] - δf[end])
 
     return As \ q
@@ -174,6 +195,9 @@ function get_cspline_coefficients(::Val{:Quadratic}, A, q, args...)
 
     A[end, end] = 1
     A[end, end - 1] = -1
+
+    q[1] = 0.0
+    q[end] = 0.0
 
     return A \ q
 end
