@@ -12,7 +12,7 @@
             @test jMath.interpolate(cs, xn[j]) ≈ yn[j] atol = 1e-11 rtol = 1e-11
         end
 
-        df = x -> jMath.interpolate(cs, x)
+        df = x -> jMath.interpolate(cs, x, false)
 
         # Test 1st derivatives to be continuous
         for j in 2:(length(xn) - 1)
@@ -29,7 +29,7 @@
             @test D²(df, xn[1]) ≈ 0 atol = 1e-11 rtol = 1e-11
 
         elseif type == :Quadratic
-            # First and last polynomials are quadratic, so third derivativse must be null
+            # First and last polynomials are quadratic, so third derivatives must be null
             @test D³(df, rand([xn[1], xn[2]])) ≈ 0 atol = 1e-11 rtol = 1e-11
             @test D³(df, rand([xn[end - 1], xn[end]])) ≈ 0 atol = 1e-11 rtol = 1e-11
 
