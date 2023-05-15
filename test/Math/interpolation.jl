@@ -44,5 +44,46 @@
             @test D³(df, xn[end - 1] - 1e-15) ≈ D³(df, xn[end - 1] + 1e-15) atol = 1e-11 rtol =
                 1e-11
         end
+
+        # Test FLAT extrapolation
+        fcn = x -> jMath.interpolate(cs, x, true)
+        
+        for (x, y) in zip((xn[1]-3, xn[end]+3), (yn[1], yn[end]))
+            # Value should be equal to that of the last point
+            @test fcn(x) ≈ y atol=1e-11 rtol=1e-11 
+            
+            # Derivatives should all be null
+            for d in (D¹, D², D³) 
+                @test d(fcn, x) == 0 
+            end
+
+        end
+        
     end
+
+    # Test for N-dimensional splines 
+    zn = cos.(xn) 
+    cs = JSMDUtils.Math.InterpCubicSplines(xn, hcat(yn, zn)')
+
+    @test cs.type == :Natural 
+
+    # Test node values
+    for j in eachindex(xn)
+
+        y = jMath.interpolate(cs, xn[j])
+        @test length(y) == 2
+        @test y ≈ [yn[j], zn[j]] atol = 1e-11 rtol = 1e-11
+        
+    end
+
+    # Test FLAT N-dimensional extrapolation 
+    y = jMath.interpolate(cs, xn[1]-1, true)
+    @test y ≈ [yn[1], zn[1]] atol = 1e-11 rtol = 1e-11
+
+    y = jMath.interpolate(cs, xn[end]+1, true)
+    @test y ≈ [yn[end], zn[end]] atol = 1e-11 rtol = 1e-11
+
+    yn = rand(3, 3, 3)
+    @test_throws ArgumentError JSMDUtils.Math.InterpCubicSplines(xn, yn)
+
 end
