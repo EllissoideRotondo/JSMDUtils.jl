@@ -1,6 +1,8 @@
 using JSMDUtils
 using Test
 
+using Artifacts
+
 import JSMDInterfaces.Ephemeris as jEphem
 
 @testset "JSMDUtils" verbose = true begin
