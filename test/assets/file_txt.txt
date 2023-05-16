@@ -1,3 +1,0 @@
-Hello world. 
-
-TXT file reading test.

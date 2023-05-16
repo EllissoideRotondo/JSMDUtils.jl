@@ -1,3 +1,0 @@
-Hello world!
-
-TXT file test example.
