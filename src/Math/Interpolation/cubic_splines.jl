@@ -3,7 +3,8 @@ export InterpCubicSplines
 """
     InterpCubicSplines{T, N} <: jMath.AbstractInterpolationMethod
 
-Type storing a cubic spline nodes and coefficients.
+Type storing a cubic spline nodes and coefficients. `T` is the spline data type and 
+`N` is the spline dimension (i.e., the number of interpolated functions). 
 
 ### Fields 
 - `n` -- Number of node points.
@@ -102,7 +103,7 @@ function jMath.interpolate(
         # Horner polynomial evaluation
         δx = x - cs.xn[j - 1]
         return cs.yn[i, j - 1] +
-               δx * (cs.c[2, j - 1] + δx * (cs.c[3, j - 1] + δx * cs.c[4, j - 1]))
+               δx * (cs.c[1, j - 1] + δx * (cs.c[2, j - 1] + δx * cs.c[3, j - 1]))
     end
 end
 
@@ -126,7 +127,7 @@ function jMath.interpolate(
         δx = x - cs.xn[j - 1]
         return SVector{N}(
             cs.yn[i, j - 1] +
-            δx * (cs.c[2, j - 1, i] + δx * (cs.c[3, j - 1, i] + δx * cs.c[4, j - 1, i])) for
+            δx * (cs.c[1, j - 1, i] + δx * (cs.c[2, j - 1, i] + δx * cs.c[3, j - 1, i])) for
             i in 1:N
         )
     end
@@ -177,7 +178,7 @@ end
 
 # Apply natural boundary conditions, such that the second derivatives
 # of the first and last polynomials are null at the start and end points.
-function get_cspline_coefficients(::Val{:Natural}, A, q, args...)
+@inbounds function get_cspline_coefficients(::Val{:Natural}, A, q, args...)
     A[1, 1] = 1
     A[end, end] = 1
 
@@ -189,7 +190,7 @@ end
 
 # Apply Not-A-Know boundary conditions, such that the third derivatives 
 # where the first and last two polynomials match are equal
-function get_cspline_coefficients(::Val{:NotAKnot}, A, q, δf, δx)
+@inbounds function get_cspline_coefficients(::Val{:NotAKnot}, A, q, δf, δx)
     As = sparse(A)
     As[1, 1] = -δx[2]
     As[1, 2] = δx[1] + δx[2]
@@ -207,7 +208,7 @@ end
 
 # Apply periodic boundary conditions, such that the first and second derivatives
 # at the first and last point are equal.
-function get_cspline_coefficients(::Val{:Periodic}, A, q, δf, δx, args...)
+@inbounds function get_cspline_coefficients(::Val{:Periodic}, A, q, δf, δx, args...)
     As = sparse(A)
     As[1, 1] = 1
     As[1, end] = -1
@@ -225,7 +226,7 @@ end
 
 # Apply quadratic boundary conditions, such that the first and last 
 # polynomials are quadratic.
-function get_cspline_coefficients(::Val{:Quadratic}, A, q, args...)
+@inbounds function get_cspline_coefficients(::Val{:Quadratic}, A, q, args...)
     A[1, 1] = 1
     A[1, 2] = -1
 

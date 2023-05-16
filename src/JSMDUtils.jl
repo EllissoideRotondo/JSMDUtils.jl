@@ -2,7 +2,7 @@ module JSMDUtils
 
 import JSMDInterfaces.Ephemeris as jEphem
 
-include("IO.jl")
+include("FileUtils.jl")
 include("format.jl")
 include("ephemeris.jl")
 

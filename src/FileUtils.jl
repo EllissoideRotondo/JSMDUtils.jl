@@ -1,13 +1,13 @@
-module IO
+module FileUtils
 
 using JSON3: JSON3
 
 import YAML as YAMLlib
-import JSMDInterfaces.IO as jIO
+using JSMDInterfaces.FilesIO
 
 for fn in (:JSON, :TXT, :YAML)
     @eval begin
-        jIO.@filetype $fn jIO.AbstractFile
+        FilesIO.@filetype $fn FilesIO.AbstractFile
         export $fn
     end
 end
@@ -17,8 +17,8 @@ end
 
 Open a JSON file and parse its data in a dictionary.
 """
-function jIO.load(file::JSON{1})
-    open(filepath(file), "r") do f
+function FilesIO.load(file::JSON{1})
+    open(FilesIO.filepath(file), "r") do f
         data = JSON3.read(f)
         return Dict(data)
     end
@@ -29,8 +29,8 @@ end
 
 Open a TEXT file and parse its data in a list of strings.
 """
-function jIO.load(file::TXT{1})
-    return readlines(filepath(file))
+function FilesIO.load(file::TXT{1})
+    return readlines(FilesIO.filepath(file))
 end
 
 """
@@ -38,8 +38,8 @@ end
 
 Open a YAML file and parse its data in a dictionary.
 """
-function jIO.load(file::YAML{1})
-    return YAMLLib.load_file(filepath(file); dicttype=Dict{Symbol,Any})
+function FilesIO.load(file::YAML{1})
+    return YAMLLib.load_file(FilesIO.filepath(file); dicttype=Dict{Symbol,Any})
 end
 
 end
