@@ -102,8 +102,8 @@ function jMath.interpolate(
 
         # Horner polynomial evaluation
         δx = x - cs.xn[j - 1]
-        return cs.yn[1, j - 1] +
-               δx * (cs.c[1, j - 1] + δx * (cs.c[2, j - 1] + δx * cs.c[3, j - 1]))
+        @evalpoly δx cs.yn[1, j-1] cs.c[1, j-1] cs.c[2, j-1] cs.c[3, j-1]
+        
     end
 end
 
