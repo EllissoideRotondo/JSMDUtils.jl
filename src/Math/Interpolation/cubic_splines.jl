@@ -1,5 +1,17 @@
 export InterpCubicSplines
 
+"""
+    InterpCubicSplines{T, N} <: jMath.AbstractInterpolationMethod
+
+Type storing a cubic spline nodes and coefficients.
+
+### Fields 
+- `n` -- Number of node points.
+- `xn` -- Interpolated node points.
+- `yn` -- Node points function values. 
+- `c` --  Spline polynomials coefficients. 
+- `type` -- Boundary conditions type.
+"""
 struct InterpCubicSplines{T,N} <: jMath.AbstractInterpolationMethod
     n::Int
     xn::Vector{T}
@@ -8,8 +20,24 @@ struct InterpCubicSplines{T,N} <: jMath.AbstractInterpolationMethod
     type::Symbol
 end
 
+
 """
-    InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol)
+    InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:Natural)
+
+Construct a cubic spline interpolant from a set of data points `x` and their values `y`. 
+Multi-dimensional splines can be constructed by passing `y` as a subtype of `AbstractMatrix`, 
+such that each row contains a different set of values to be interpolated and the number of 
+columns equals the number of data points.
+
+Different boundary conditions can be applied based on the specified `type`: 
+
+- **:Natural**: the second derivative of the first and the last polynomial are equal to 
+    zero at the boundary points. 
+- **:NotAKnot**: the third derivatives of the first and last two polynomials are 
+    equal in the points where they meet each other.
+- **:Periodic**: the first and second derivatives at the initial and final points are equal.
+- **:Quadratic**: the first and the last polynomial are quadratic. 
+
 """
 function InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:Natural)
 
@@ -40,11 +68,20 @@ function InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:N
     @views coeffs = vcat((_assemble_cspline(n, xs, ys[j, :], Val(type))[:] for j in 1:N)...)
     T = eltype(coeffs)
 
-    return InterpCubicSplines{T,N}(n, xs, ys, reshape(coeffs, (4, n - 1, N)), type)
+    return InterpCubicSplines{T,N}(n, xs, ys, reshape(coeffs, (3, n - 1, N)), type)
 end
 
 """ 
-    interpolate(::InterpCubicSplines, x::Number)
+    interpolate(sp::InterpCubicSplines, x::Number, flat::Bool=true)
+
+Interpolate the cubic spline `sp` at point `x`. If the spline has a single 
+dimension (e.g., `InterpCubicSpline{T, 1}`), a scalar value is returned. Otherwise,
+an `SVector` is computed. 
+
+If `x` is outside the boundary range of `sp` a flat extrapolation is used by default. 
+If the `flat` argument is `false`, the first and last polynomials will be used to 
+compute all the outside values.
+
 """
 function jMath.interpolate(
     cs::InterpCubicSplines{T,1}, x::Number, flat::Bool=true
@@ -64,7 +101,7 @@ function jMath.interpolate(
 
         # Horner polynomial evaluation
         δx = x - cs.xn[j - 1]
-        return cs.c[1, j - 1] +
+        return cs.yn[i, j - 1] +
                δx * (cs.c[2, j - 1] + δx * (cs.c[3, j - 1] + δx * cs.c[4, j - 1]))
     end
 end
@@ -88,7 +125,7 @@ function jMath.interpolate(
         # Horner polynomial evaluation
         δx = x - cs.xn[j - 1]
         return SVector{N}(
-            cs.c[1, j - 1, i] +
+            cs.yn[i, j - 1] +
             δx * (cs.c[2, j - 1, i] + δx * (cs.c[3, j - 1, i] + δx * cs.c[4, j - 1, i])) for
             i in 1:N
         )
@@ -129,7 +166,6 @@ function _assemble_cspline(n::Int, x::AbstractVector, y::AbstractVector, type)
         # Polynomials coefficients matrix
         coeffs =
             hcat(
-                y[1:(end - 1)],
                 δf .- δx .* (b[2:end] + 2 * b[1:(end - 1)]) / 3,
                 b[1:(end - 1)],
                 (b[2:end] - b[1:(end - 1)]) ./ (3 * δx),
