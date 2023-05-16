@@ -39,7 +39,7 @@ end
 Open a YAML file and parse its data in a dictionary.
 """
 function FilesIO.load(file::YAML{1})
-    return YAMLLib.load_file(FilesIO.filepath(file); dicttype=Dict{Symbol,Any})
+    return YAMLlib.load_file(FilesIO.filepath(file); dicttype=Dict{Symbol,Any})
 end
 
 end
