@@ -1,7 +1,7 @@
 
 # JSMDUtils.jl
 
-_A utily package for the JSMD ecosystem_
+_A utility package for the JSMD ecosystem_
 
 [![Stable Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliaspacemissiondesign.github.io/JSMDUtils.jl/stable/) 
 [![Dev Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliaspacemissiondesign.github.io/JSMDUtils.jl/dev/) 
