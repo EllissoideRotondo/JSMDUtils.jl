@@ -7,6 +7,8 @@
         cs = JSMDUtils.Math.InterpCubicSplines(xn, yn, type)
         @test cs.type == type
 
+        @test eltype(cs) == eltype(cs.c)
+
         # Test node values
         for j in eachindex(xn)
             @test jMath.interpolate(cs, xn[j]) ≈ yn[j] atol = 1e-11 rtol = 1e-11
@@ -104,6 +106,7 @@ end;
     yn = sin.(xn)
 
     ak = JSMDUtils.Math.InterpAkima(xn, yn)
+    @test eltype(ak) == eltype(ak.c)
 
     # Test node values
     for j in eachindex(xn)
@@ -162,5 +165,6 @@ end;
     # Test wrong dimensions
     yn = rand(3, 3, 3)
     @test_throws ArgumentError JSMDUtils.Math.InterpAkima(xn, yn)
+    @test_throws ArgumentError JSMDUtils.Math.InterpAkima(rand(4), rand(4))
 
 end;
