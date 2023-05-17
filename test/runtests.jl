@@ -5,6 +5,11 @@ using LazyArtifacts
 
 import JSMDInterfaces.Ephemeris as jEphem
 
+@testset "Download all artifacts" begin
+    @info artifact"testdata"
+    @info "All artifacts downloaded"
+end
+
 @testset "JSMDUtils" verbose = true begin
     @eval begin
         modules = [:Math]

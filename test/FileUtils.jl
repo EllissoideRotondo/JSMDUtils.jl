@@ -2,11 +2,6 @@
 import JSMDUtils.FileUtils 
 import JSMDInterfaces.FilesIO as jIO
 
-@testset "Download all artifacts" begin
-    @info artifact"testdata"
-    @info "All artifacts downloaded"
-end
-
 @testset "IO" verbose=true begin 
 
     test_dir = artifact"testdata"
