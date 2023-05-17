@@ -2,6 +2,8 @@ using JSMDUtils
 using Test
 
 using Artifacts
+using Pkg 
+Pkg.instantiate()
 
 import JSMDInterfaces.Ephemeris as jEphem
 
