@@ -148,6 +148,9 @@ end;
     y = jMath.interpolate(ak, xn[1] - 1, true)
     @test y ≈ [yn[1], zn[1]] atol = 1e-11 rtol = 1e-11
     
+    y = jMath.interpolate(ak, xn[end] + 1, true)
+    @test y ≈ [yn[end], zn[end]] atol = 1e-11 rtol = 1e-11
+    
     # Test permutations 
     xn = [2, 1, 3, 0, 5]
     yn = sin.(xn)
