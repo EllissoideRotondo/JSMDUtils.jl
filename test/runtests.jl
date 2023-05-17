@@ -23,5 +23,4 @@ end
     include("ephemeris.jl")
     include("format.jl")
     include("FileUtils.jl")
-    
 end;

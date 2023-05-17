@@ -1,5 +1,5 @@
 
-import JSMDUtils.FileUtils 
+import JSMDUtils.FileUtils
 import JSMDInterfaces.FilesIO as jIO
 
 @testset "IO" verbose=true begin 
@@ -11,7 +11,7 @@ import JSMDInterfaces.FilesIO as jIO
     fileTXT = FileUtils.TXT(path)
 
     @test jIO.filepath(fileTXT) == path
-    
+
     data = jIO.load(fileTXT)
     @test data[1] == "Hello world!"
     @test data[2] == ""
@@ -21,8 +21,8 @@ import JSMDInterfaces.FilesIO as jIO
     path = joinpath(test_dir, "jsonfile.json")
     fileJSON = FileUtils.JSON(path)
 
-    @test jIO.filepath(fileJSON) == path 
-    
+    @test jIO.filepath(fileJSON) == path
+
     data = jIO.load(fileJSON)
 
     @test data[:filename][:title] == "json text"
@@ -39,5 +39,4 @@ import JSMDInterfaces.FilesIO as jIO
     @test data[:name] == "TestFile1"
     @test data[:number] == 1
     @test data[:text] == ["hello", "world"]
-
 end;

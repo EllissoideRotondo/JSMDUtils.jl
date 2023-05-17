@@ -1,7 +1,7 @@
 export InterpCubicSplines
 
 """
-    InterpCubicSplines{T, N} <: jMath.AbstractInterpolationMethod
+    InterpCubicSplines{T, N} <: AbstractInterpolationMethod
 
 Type storing a cubic spline nodes and coefficients. `T` is the spline data type and 
 `N` is the spline dimension (i.e., the number of interpolated functions). 
@@ -20,7 +20,6 @@ struct InterpCubicSplines{T,N} <: jMath.AbstractInterpolationMethod
     c::Array{T,3}
     type::Symbol
 end
-
 
 """
     InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:Natural)
@@ -72,6 +71,8 @@ function InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:N
     return InterpCubicSplines{T,N}(n, xs, ys, reshape(coeffs, (3, n - 1, N)), type)
 end
 
+Base.eltype(::InterpCubicSplines{T}) where {T} = T
+
 """ 
     interpolate(sp::InterpCubicSplines, x::Number, flat::Bool=true)
 
@@ -87,44 +88,45 @@ compute all the outside values.
 function jMath.interpolate(
     cs::InterpCubicSplines{T,1}, x::Number, flat::Bool=true
 ) where {T}
-
-    # Flat extrapolation settings
-    if flat
-        if x < cs.xn[1]
-            return cs.yn[1, 1]
-        elseif x > cs.xn[end]
-            return cs.yn[1, end]
-        end
-    end
-
     @inbounds begin
+
+        # Flat extrapolation settings
+        if flat
+            if x < cs.xn[1]
+                return cs.yn[1, 1]
+            elseif x > cs.xn[end]
+                return cs.yn[1, end]
+            end
+        end
+
+        # Search segment index
         j = max(2, min(searchsortedfirst(cs.xn, x), cs.n))
 
         # Horner polynomial evaluation
         δx = x - cs.xn[j - 1]
-        @evalpoly δx cs.yn[1, j-1] cs.c[1, j-1] cs.c[2, j-1] cs.c[3, j-1]
-        
+        @evalpoly δx cs.yn[1, j - 1] cs.c[1, j - 1] cs.c[2, j - 1] cs.c[3, j - 1]
     end
 end
 
 function jMath.interpolate(
     cs::InterpCubicSplines{T,N}, x::Number, flat::Bool=true
 ) where {T,N}
+    @inbounds @views begin
 
-    # Flat extrapolation settings
-    if flat
-        if x < cs.xn[1]
-            return SVector{N}(yi for yi in @view cs.yn[1:end, 1])
-        elseif x > cs.xn[end]
-            return SVector{N}(yi for yi in @view cs.yn[1:end, end])
+        # Flat extrapolation settings
+        @views if flat
+            if x < cs.xn[1]
+                return SVector{N}(cs.yn[:, 1])
+            elseif x > cs.xn[end]
+                return SVector{N}(cs.yn[:, end])
+            end
         end
-    end
 
-    @inbounds begin
+        # Search segment index
         j = max(2, min(searchsortedfirst(cs.xn, x), cs.n))
+        δx = x - cs.xn[j - 1]
 
         # Horner polynomial evaluation
-        δx = x - cs.xn[j - 1]
         return SVector{N}(
             cs.yn[i, j - 1] +
             δx * (cs.c[1, j - 1, i] + δx * (cs.c[2, j - 1, i] + δx * cs.c[3, j - 1, i])) for
@@ -133,6 +135,7 @@ function jMath.interpolate(
     end
 end
 
+# Compute cubic spline polynomial coefficients
 function _assemble_cspline(n::Int, x::AbstractVector, y::AbstractVector, type)
     @inbounds @views begin
         δx = diff(x)

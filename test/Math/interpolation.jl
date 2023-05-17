@@ -31,7 +31,7 @@
         elseif type == :Quadratic
             # First and last polynomials are quadratic, so third derivatives must be null
             @test D³(df, rand([xn[1], xn[2]])) ≈ 0 atol = 1e-11 rtol = 1e-11
-            @test D³(df, 0.5*(xn[end - 1]+xn[end])) ≈ 0 atol = 1e-11 rtol = 1e-11
+            @test D³(df, 0.5 * (xn[end - 1] + xn[end])) ≈ 0 atol = 1e-11 rtol = 1e-11
 
         elseif type == :Periodic
             # 1st and 2nd derivatives at first and last point must be equal
@@ -47,43 +47,38 @@
 
         # Test FLAT extrapolation
         fcn = x -> jMath.interpolate(cs, x, true)
-        
-        for (x, y) in zip((xn[1]-3, xn[end]+3), (yn[1], yn[end]))
-            # Value should be equal to that of the last point
-            @test fcn(x) ≈ y atol=1e-11 rtol=1e-11 
-            
-            # Derivatives should all be null
-            for d in (D¹, D², D³) 
-                @test d(fcn, x) == 0 
-            end
 
+        for (x, y) in zip((xn[1] - 3, xn[end] + 3), (yn[1], yn[end]))
+            # Value should be equal to that of the last point
+            @test fcn(x) ≈ y atol = 1e-11 rtol = 1e-11
+
+            # Derivatives should all be null
+            for d in (D¹, D², D³)
+                @test d(fcn, x) == 0
+            end
         end
-        
     end
 
     # Test for N-dimensional splines 
-    zn = cos.(xn) 
+    zn = cos.(xn)
     cs = JSMDUtils.Math.InterpCubicSplines(xn, hcat(yn, zn)')
 
-    @test cs.type == :Natural 
+    @test cs.type == :Natural
 
     # Test node values
     for j in eachindex(xn)
-
         y = jMath.interpolate(cs, xn[j])
         @test length(y) == 2
         @test y ≈ [yn[j], zn[j]] atol = 1e-11 rtol = 1e-11
-        
     end
 
     # Test FLAT N-dimensional extrapolation 
-    y = jMath.interpolate(cs, xn[1]-1, true)
+    y = jMath.interpolate(cs, xn[1] - 1, true)
     @test y ≈ [yn[1], zn[1]] atol = 1e-11 rtol = 1e-11
 
-    y = jMath.interpolate(cs, xn[end]+1, true)
+    y = jMath.interpolate(cs, xn[end] + 1, true)
     @test y ≈ [yn[end], zn[end]] atol = 1e-11 rtol = 1e-11
 
     yn = rand(3, 3, 3)
     @test_throws ArgumentError JSMDUtils.Math.InterpCubicSplines(xn, yn)
-
 end
