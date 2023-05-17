@@ -2,10 +2,15 @@
 import JSMDUtils.FileUtils 
 import JSMDInterfaces.FilesIO as jIO
 
-test_dir = artifact"testdata"
+@testset "Download all artifacts" begin
+    @info artifact"testdata"
+    @info "All artifacts downloaded"
+end
 
 @testset "IO" verbose=true begin 
 
+    test_dir = artifact"testdata"
+    
     # Test TXT file
     path = joinpath(test_dir, "txtfile.txt")
     fileTXT = FileUtils.TXT(path)
