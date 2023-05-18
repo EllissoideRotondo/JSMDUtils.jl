@@ -65,7 +65,7 @@ function InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:N
     ys = reshape(collect(N == 1 ? y[idx] : y[:, idx]), N, n)
 
     # Compute the spline coefficients
-    @views coeffs = vcat((_assemble_cspline(n, xs, ys[j, :], Val(type))[:] for j in 1:N)...)
+    @views coeffs = vcat((_assemble_cspline(n, xs, ys[j, :], Val{type}())[:] for j in 1:N)...)
     T = eltype(coeffs)
 
     return InterpCubicSplines{T,N}(n, xs, ys, reshape(coeffs, (3, n - 1, N)), type)
