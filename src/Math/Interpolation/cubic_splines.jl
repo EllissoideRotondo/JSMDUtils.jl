@@ -185,8 +185,8 @@ end
     A[1, 1] = 1
     A[end, end] = 1
 
-    q[1] = 0.0
-    q[end] = 0.0
+    q[1] = 0
+    q[end] = 0
 
     return A \ q
 end
@@ -203,8 +203,8 @@ end
     As[end, end - 1] = δx[end] + δx[end - 1]
     As[end, end - 2] = -δx[end]
 
-    q[1] = 0.0
-    q[end] = 0.0
+    q[1] = 0
+    q[end] = 0
 
     return As \ q
 end
@@ -221,7 +221,7 @@ end
     As[end, 1] = 2δx[1]
     As[end, 2] = δx[1]
 
-    q[1] = 0.0
+    q[1] = 0
     q[end] = 3 * (δf[1] - δf[end])
 
     return As \ q
@@ -236,8 +236,8 @@ end
     A[end, end] = 1
     A[end, end - 1] = -1
 
-    q[1] = 0.0
-    q[end] = 0.0
+    q[1] = 0
+    q[end] = 0
 
     return A \ q
 end
