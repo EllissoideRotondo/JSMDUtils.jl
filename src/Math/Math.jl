@@ -9,6 +9,7 @@ import JSMDInterfaces.Math as jMath
 
 include("angles.jl")
 include("derivatives.jl")
+include("linalg.jl")
 
 include(joinpath("Interpolation", "Interpolation.jl"))
 

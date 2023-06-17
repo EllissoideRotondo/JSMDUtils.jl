@@ -5,3 +5,4 @@ import JSMDInterfaces.Math as jMath
 include("derivatives.jl")
 include("angles.jl")
 include("interpolation.jl")
+include("linalg.jl")
