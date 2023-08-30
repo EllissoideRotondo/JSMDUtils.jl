@@ -6,6 +6,13 @@ Modules = [JSMDUtils.Math]
 Order = [:type, :function]
 ```
 
+# Autodiff 
+
+```@autodocs 
+Modules = [JSMDUtils.Autodiff]
+Order = [:type, :functon]
+```
+
 # FileUtils 
 
 ```@autodocs
