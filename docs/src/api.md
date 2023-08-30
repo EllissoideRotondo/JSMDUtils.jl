@@ -10,7 +10,7 @@ Order = [:type, :function]
 
 ```@autodocs 
 Modules = [JSMDUtils.Autodiff]
-Order = [:type, :functon]
+Order = [:type, :function]
 ```
 
 # FileUtils 
