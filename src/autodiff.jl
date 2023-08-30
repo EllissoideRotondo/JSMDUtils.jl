@@ -18,32 +18,6 @@ Generate a dual tag for the element type of `x`.
 """
 @inline gentag(x) = ForwardDiff.Tag(JSMDDiffTag(), eltype(x))
 
-"""
-    gen_iotypes(::Type{S}, levels::Int)
-
-Generate the input and output time signatures for the desired levels of nested derivatives, 
-given the standard input type `S`.
-"""
-function gen_iotypes(::Type{S}, levels::Int) where S
-
-    # Add the standard type 
-    Sᵢ = [S]
-    inps, outs = [Tuple{S}], [S]
-
-    for _ = 1:levels 
-        
-        push!(Sᵢ, 
-            ForwardDiff.Dual{ForwardDiff.Tag{Autodiff.JSMDDiffTag, Sᵢ[end]}, Sᵢ[end], 1}
-        )
-
-        push!(inps, Tuple{Sᵢ[end]})
-        push!(outs, Sᵢ[end])
-    end
-
-    return Tuple(inps), Tuple(outs)
-end
-
-
 # -------------------------
 # Derivatives Operations 
 
