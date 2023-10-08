@@ -57,7 +57,7 @@ end
 """
     AutoGradientConfig(x)
 
-Generate a [`ForwardDiff.GradientConfig`](@ref) instance based on the type and shape of the 
+Generate a `ForwardDiff.GradientConfig` instance based on the type and shape of the 
 input `x`. 
 
 The returned `GradientConfig` instance contains all the work buffers required by 
@@ -67,7 +67,7 @@ number of dispatches for the function wrappers.
 
 !!! warning 
     The dual numbers that are generated from this instance all share the 
-    ['Autodiff.JSMDDiffTag`](@ref) tag, which could lead to perturbation confusion if the 
+    [`Autodiff.JSMDDiffTag`](@ref) tag, which could lead to perturbation confusion if the 
     gradient operation is not used with care.
 
 ### See also 
@@ -82,7 +82,7 @@ end
     gradient!(res, f, x)
     gradient!(res, f, x, cfg::GradientConfig)
 
-Compute `∇f` evaluated at `x'` and store the output in `res`, assuming `f` is called as 
+Compute `∇f` evaluated at `x` and store the output in `res`, assuming `f` is called as 
 `f(x)`. To avoid runtime allocations, a `GradientConfig` instance must be provided. 
 
 !!! note 
@@ -112,7 +112,7 @@ end
 """
     AutoJacobianConfig(x)
 
-Generate a [`ForwardDiff.JacobianConfig`](@ref) instance based on the type and shape of the 
+Generate a `ForwardDiff.JacobianConfig` instance based on the type and shape of the 
 input vector `x`. 
 
 The returned `JacobianConfig` instance contains all the work buffers required by 
@@ -125,7 +125,7 @@ wrappers.
 
     AutoJacobianConfig(y, x)
 
-Generate a [`ForwardDiff.JacobianConfig`](@ref) instance based on the type and shape of the 
+Generate a `ForwardDiff.JacobianConfig` instance based on the type and shape of the 
 input vector `x` and the output vector `y`. 
 
 The returned `JacobianConfig` instance contains all the work buffers required by 
@@ -133,7 +133,7 @@ The returned `JacobianConfig` instance contains all the work buffers required by
     
 !!! warning 
     The dual numbers that are generated from this instance all share the 
-    ['Autodiff.JSMDDiffTag`](@ref) tag, which could lead to perturbation confusion if the 
+    [`Autodiff.JSMDDiffTag`](@ref) tag, which could lead to perturbation confusion if the 
     gradient operation is not used with care.
 
 ### See Also 
@@ -219,7 +219,7 @@ wrappers.
 
 !!! warning 
     The dual numbers that are generated from this instance all share the 
-    ['Autodiff.JSMDDiffTag`](@ref) tag, which could lead to perturbation confusion if the 
+    [`Autodiff.JSMDDiffTag`](@ref) tag, which could lead to perturbation confusion if the 
     hessian operation is not used with care.
 
 ### See Also 
@@ -243,7 +243,7 @@ end
     hessian!(res, f, x)
     hessian!(res, f, x, ahc::AutoHessianConfig)
 
-Compute `H(f)` (i.e., `J(∇(f))`) evaluated at `x'` and store the output in `res`, assuming 
+Compute `H(f)` (i.e., `J(∇(f))`) evaluated at `x` and store the output in `res`, assuming 
 `f` is called as `f(x)`. To avoid runtime allocations, an [`Autodiff.AutoHessianConfig`](@ref) 
 instance must be provided. 
 
