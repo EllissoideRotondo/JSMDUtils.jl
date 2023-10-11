@@ -1,7 +1,4 @@
 
-import JSMDUtils.FileUtils
-import JSMDInterfaces.FilesIO as jIO
-
 @testset "IO" verbose=true begin 
 
     test_dir = artifact"testdata"

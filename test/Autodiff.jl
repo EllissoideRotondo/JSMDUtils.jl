@@ -1,7 +1,4 @@
 
-using ForwardDiff
-using JSMDUtils.Autodiff
-
 @testset "Autodiff" verbose=true begin 
 
     fun1(x) = 3x^2 + 4*cos(x) + x*sqrt(x)
