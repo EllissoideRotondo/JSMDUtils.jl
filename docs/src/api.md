@@ -1,26 +1,27 @@
 
-# Math
+# JSMDUtils API
 
+## Math
 ```@autodocs
 Modules = [JSMDUtils.Math]
 Order = [:type, :function]
 ```
 
-# Autodiff 
+## Autodiff 
 
 ```@autodocs 
 Modules = [JSMDUtils.Autodiff]
 Order = [:type, :function]
 ```
 
-# FileUtils 
+## FileUtils 
 
 ```@autodocs
 Modules = [JSMDUtils.FileUtils]
 Order = [:type, :function]
 ```
 
-# Miscellaneous
+## Miscellaneous
 
 ```@autodocs
 Modules = [JSMDUtils]
