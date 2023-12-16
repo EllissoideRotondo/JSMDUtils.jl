@@ -8,6 +8,7 @@ Type storing a cubic spline nodes and coefficients. `T` is the spline data type 
 
 ### Fields 
 - `n` -- Number of node points.
+- `m` -- Size of the interpolated element. 
 - `xn` -- Interpolated node points.
 - `yn` -- Node points function values. 
 - `c` --  Spline polynomials coefficients. 
@@ -15,6 +16,7 @@ Type storing a cubic spline nodes and coefficients. `T` is the spline data type 
 """
 struct InterpCubicSplines{T,N} <: jMath.AbstractInterpolationMethod
     n::Int
+    m::Int
     xn::Vector{T}
     yn::Matrix{T}
     c::Array{T,3}
@@ -50,8 +52,10 @@ function InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:N
 
     if N == 1
         ny = length(y)
+        m = 1
     elseif N == 2
         ny = size(y, 2)
+        m = size(y, 1)
     else
         throw(ArgumentError("Arrays with more than 2 dimensions are not supported."))
     end
@@ -62,13 +66,13 @@ function InterpCubicSplines(x::AbstractVector, y::AbstractArray, type::Symbol=:N
     idx = sortperm(x)
 
     xs = collect(x[idx])
-    ys = reshape(collect(N == 1 ? y[idx] : y[:, idx]), N, n)
+    ys = reshape(collect(N == 1 ? y[idx] : y[:, idx]), m, n)
 
     # Compute the spline coefficients
-    @views coeffs = vcat((_assemble_cspline(n, xs, ys[j, :], Val{type}())[:] for j in 1:N)...)
+    @views coeffs = vcat((_assemble_cspline(n, xs, ys[j, :], Val{type}())[:] for j in 1:m)...)
     T = eltype(coeffs)
 
-    return InterpCubicSplines{T,N}(n, xs, ys, reshape(coeffs, (3, n - 1, N)), type)
+    return InterpCubicSplines{T,N}(n, m, xs, ys, reshape(coeffs, (3, n - 1, m)), type)
 end
 
 Base.eltype(::InterpCubicSplines{T}) where {T} = T
@@ -116,9 +120,9 @@ function jMath.interpolate(
         # Flat extrapolation settings
         @views if flat
             if x < cs.xn[1]
-                return SVector{N}(cs.yn[:, 1])
+                return SVector{cs.m}(cs.yn[:, 1])
             elseif x > cs.xn[end]
-                return SVector{N}(cs.yn[:, end])
+                return SVector{cs.m}(cs.yn[:, end])
             end
         end
 
@@ -127,10 +131,10 @@ function jMath.interpolate(
         δx = x - cs.xn[j - 1]
 
         # Horner polynomial evaluation
-        return SVector{N}(
+        return SVector{cs.m}(
             cs.yn[i, j - 1] +
             δx * (cs.c[1, j - 1, i] + δx * (cs.c[2, j - 1, i] + δx * cs.c[3, j - 1, i])) for
-            i in 1:N
+            i in 1:cs.m
         )
     end
 end

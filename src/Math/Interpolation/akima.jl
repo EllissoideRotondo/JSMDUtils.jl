@@ -14,6 +14,7 @@ and `N` is the spline dimension (i.e., the number of interpolated functions).
 """
 struct InterpAkima{T,N} <: jMath.AbstractInterpolationMethod
     n::Int
+    m::Int
     xn::Vector{T}
     yn::Matrix{T}
     c::Array{T,3}
@@ -45,10 +46,12 @@ function InterpAkima(x::AbstractVector, y::AbstractArray)
 
     if N == 1
         ny = length(y)
+        m = 1
     elseif N == 2
         ny = size(y, 2)
+        m = size(y, 1)
     else
-        throw(ArgumentError("Arrays with more than 2 dimensions are not supported"))
+        throw(ArgumentError("Arrays with more than 2 dimensions are not supported."))
     end
 
     ny != n && throw(ArgumentError("`x` and `y` must have the same length."))
@@ -57,13 +60,13 @@ function InterpAkima(x::AbstractVector, y::AbstractArray)
     idx = sortperm(x)
 
     xs = collect(x[idx])
-    ys = reshape(collect(N == 1 ? y[idx] : y[:, idx]), N, n)
+    ys = reshape(collect(N == 1 ? y[idx] : y[:, idx]), m, n)
 
-    # Compute the spline coefficients 
-    @views coeffs = vcat((_assemble_akima(n, xs, ys[j, :])[:] for j in 1:N)...)
+    # Compute the spline coefficients
+    @views coeffs = vcat((_assemble_akima(n, xs, ys[j, :])[:] for j in 1:m)...)
     T = eltype(coeffs)
 
-    return InterpAkima{T,N}(n, xs, ys, reshape(coeffs, (3, n - 1, N)))
+    return InterpAkima{T,N}(n, m, xs, ys, reshape(coeffs, (3, n - 1, m)))
 end
 
 Base.eltype(::InterpAkima{T}) where {T} = T
@@ -106,9 +109,9 @@ function jMath.interpolate(ak::InterpAkima{T,N}, x::Number, flat::Bool=true) whe
         # Flat extrapolation settings 
         if flat
             if x < ak.xn[1]
-                return SVector{N}(ak.yn[:, 1])
+                return SVector{ak.m}(ak.yn[:, 1])
             elseif x > ak.xn[end]
-                return SVector{N}(ak.yn[:, end])
+                return SVector{ak.m}(ak.yn[:, end])
             end
         end
 
@@ -117,10 +120,10 @@ function jMath.interpolate(ak::InterpAkima{T,N}, x::Number, flat::Bool=true) whe
         δx = x - ak.xn[j - 1]
 
         # Horner polynomial evaluation 
-        return SVector{N}(
+        return SVector{ak.m}(
             ak.yn[i, j - 1] +
             δx * (ak.c[1, j - 1, i] + δx * (ak.c[2, j - 1, i] + δx * ak.c[3, j - 1, i])) for
-            i in 1:N
+            i in 1:ak.m
         )
     end
 end
