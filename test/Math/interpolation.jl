@@ -61,8 +61,20 @@
         end
     end
 
-    # Test for N-dimensional splines 
+    # Test for N-dimensional splines (Additional test after bug #19)
     zn = cos.(xn)
+    cs = JSMDUtils.Math.InterpCubicSplines(xn, hcat(yn, zn, zn)')
+
+    @test cs.type == :Natural
+
+    # Test node values
+    for j in eachindex(xn)
+        y = jMath.interpolate(cs, xn[j])
+        @test length(y) == 3
+        @test y ≈ [yn[j], zn[j], zn[j]] atol = 1e-11 rtol = 1e-11
+    end
+
+    # Test for N-dimensional splines 
     cs = JSMDUtils.Math.InterpCubicSplines(xn, hcat(yn, zn)')
 
     @test cs.type == :Natural

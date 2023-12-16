@@ -1,7 +1,7 @@
 name = "JSMDUtils"
 uuid = "67801824-9821-48b9-a814-9bfb19231086"
 authors = ["JSMD Team"]
-version = "1.2.0"
+version = "1.2.1"
 
 [deps]
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
