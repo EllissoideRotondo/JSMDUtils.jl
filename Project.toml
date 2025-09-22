@@ -15,7 +15,7 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
-ForwardDiff = "0.10"
+ForwardDiff = "1.2.1"
 JSMDInterfaces = "1.4"
 JSON3 = "1"
 PrecompileTools = "1"
